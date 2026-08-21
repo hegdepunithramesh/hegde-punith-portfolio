@@ -4,9 +4,11 @@ import logger from '../utils/logger.js';
 
 /**
  * Creates Nodemailer Transporter
- * Direct SSL Port 465 for cloud hosting compatibility (Render, DigitalOcean, AWS)
+ * Strips whitespace from App Password and sets connection timeouts
  */
 const createTransporter = () => {
+  const cleanPass = (config.email.pass || '').replace(/\s+/g, '');
+
   if (config.email.host) {
     return nodemailer.createTransport({
       host: config.email.host,
@@ -14,22 +16,25 @@ const createTransporter = () => {
       secure: config.email.secure,
       auth: {
         user: config.email.user,
-        pass: config.email.pass,
+        pass: cleanPass,
       },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
       tls: { rejectUnauthorized: false },
     });
   }
 
-  // Cloud-optimized Gmail Direct SSL Transporter (Port 465)
+  // Gmail Service Transporter with connection timeouts
   return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    service: config.email.service || 'gmail',
     auth: {
       user: config.email.user,
-      pass: config.email.pass,
+      pass: cleanPass,
     },
-    tls: { rejectUnauthorized: false },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
   });
 };
 
