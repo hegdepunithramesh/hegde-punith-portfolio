@@ -9,6 +9,7 @@ export const config = {
     ? process.env.ALLOWED_ORIGINS.split(',') 
     : ['http://localhost:3000', 'http://localhost:5173'],
   email: {
+    resendApiKey: process.env.RESEND_API_KEY || '',
     service: process.env.EMAIL_SERVICE || 'gmail',
     host: process.env.SMTP_HOST || '',
     port: parseInt(process.env.SMTP_PORT || '587', 10),

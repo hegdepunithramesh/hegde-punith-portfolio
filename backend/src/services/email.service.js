@@ -1,9 +1,10 @@
+import { Resend } from 'resend';
 import nodemailer from 'nodemailer';
 import config from '../config/index.js';
 import logger from '../utils/logger.js';
 
 /**
- * Creates Nodemailer Transporter with strict connection timeouts
+ * Creates Nodemailer Transporter as fallback
  */
 const createTransporter = () => {
   if (config.email.host) {
@@ -21,7 +22,6 @@ const createTransporter = () => {
     });
   }
 
-  // Gmail Transporter with 5s strict timeout to prevent hanging
   return nodemailer.createTransport({
     service: config.email.service || 'gmail',
     auth: {
@@ -97,16 +97,38 @@ const formatHtmlEmail = ({ name, email, subject, message, timestamp }) => {
 };
 
 /**
- * Service function to send contact email via Nodemailer
+ * Service function to send contact email
+ * Uses Resend HTTP API (Port 443) if RESEND_API_KEY is present, else falls back to Nodemailer
  */
 export const sendContactEmailService = async ({ name, email, subject, message, rawMessage }) => {
   const timestamp = new Date().toISOString();
 
+  // 1. Preferred Resend HTTP API (Port 443 - 100% Guaranteed on Cloud Platforms like Render)
+  if (config.email.resendApiKey) {
+    try {
+      const resend = new Resend(config.email.resendApiKey);
+      const resendData = await resend.emails.send({
+        from: 'Portfolio Contact <onboarding@resend.dev>',
+        to: [config.email.receiver || 'hegdepunithramesh@gmail.com'],
+        replyTo: email,
+        subject: `[Portfolio Inquiry] From ${name}: ${subject}`,
+        html: formatHtmlEmail({ name, email, subject, message, timestamp }),
+      });
+
+      logger.info(`Contact email sent via Resend API successfully. ID: ${resendData.id || resendData.data?.id}`);
+      return { success: true, provider: 'resend', id: resendData.id || resendData.data?.id };
+    } catch (resendErr) {
+      logger.error(`Resend API transport failed, attempting Nodemailer fallback:`, resendErr);
+    }
+  }
+
+  // 2. Dev mode simulation if no credentials set
   if (!config.email.user || !config.email.pass) {
-    logger.info(`[DEV MODE] SMTP credentials not set. Simulated contact email delivery for [${name} <${email}>]`);
+    logger.info(`[DEV MODE] Credentials not set. Simulated contact email delivery for [${name} <${email}>]`);
     return { success: true, simulated: true };
   }
 
+  // 3. Fallback Nodemailer SMTP transport
   const transporter = createTransporter();
 
   const mailOptions = {
@@ -121,7 +143,7 @@ export const sendContactEmailService = async ({ name, email, subject, message, r
   try {
     const info = await transporter.sendMail(mailOptions);
     logger.info(`Contact email sent successfully to ${config.email.receiver}. Message ID: ${info.messageId}`);
-    return { success: true, messageId: info.messageId };
+    return { success: true, messageId: info.messageId, provider: 'nodemailer' };
   } catch (error) {
     logger.error(`Nodemailer email transport failed:`, error);
     throw error;
