@@ -1,0 +1,22 @@
+{
+  "name": "hegde-punith-portfolio-backend",
+  "version": "1.0.0",
+  "description": "Production-grade Express backend for Hegde Punith Ramesh personal portfolio",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.3.0",
+    "nodemailer": "^6.10.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.4"
+  }
+}

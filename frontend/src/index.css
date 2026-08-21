@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Color Tokens — Dark System */
+    --bg-base: #09090b;
+    --bg-surface: #0c0c0e;
+    --bg-elevated: #141417;
+    --bg-glass: rgba(18, 18, 21, 0.75);
+    
+    /* Typography Tokens */
+    --text-primary: #f4f4f5;
+    --text-secondary: #d4d4d8;
+    --text-muted: #a1a1aa;
+    --text-subtle: #71717a;
+    
+    /* Accent Tokens — Warm Gold / Amber */
+    --accent: #d97706;
+    --accent-hover: #f59e0b;
+    --accent-light: rgba(217, 119, 6, 0.12);
+    --accent-border: rgba(217, 119, 6, 0.3);
+    --accent-glow: rgba(217, 119, 6, 0.2);
+
+    /* Border Tokens */
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-medium: rgba(255, 255, 255, 0.14);
+    --border-hover: rgba(255, 255, 255, 0.22);
+
+    /* Radii Tokens */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.03em;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Background Texture Utilities */
+.bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.028'/%3E%3C/svg%3E");
+}
+
+.bg-radial-gradient {
+  background: radial-gradient(circle at 50% 0%, rgba(217, 119, 6, 0.07) 0%, rgba(9, 9, 11, 0) 70%);
+}
+
+.bg-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+/* Restrained Glass Panels */
+.glass-panel {
+  background: rgba(14, 14, 17, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+}
+
+.glass-panel-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel-hover:hover {
+  background: rgba(20, 20, 24, 0.85);
+  border-color: var(--border-medium);
+}
+
+/* Editorial Underline Effect */
+.editorial-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.editorial-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--accent);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.editorial-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Subtle Hairline Gradient Border */
+.border-gradient-subtle {
+  border: 1px solid transparent;
+  background-image: linear-gradient(#0c0c0e, #0c0c0e), linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+/* Subtle Accent Glow */
+.accent-glow-sm {
+  box-shadow: 0 0 25px -5px rgba(217, 119, 6, 0.15);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Reduced Motion Safety */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
