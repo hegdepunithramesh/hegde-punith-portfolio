@@ -19,7 +19,7 @@ export const config = {
   },
   rateLimit: {
     windowMs: 15 * 60 * 1000, // 15 minutes
-    maxRequests: 5, // 5 submissions per IP per window
+    maxRequests: 15, // 15 submissions per IP per window
   },
 };
 
