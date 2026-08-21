@@ -4,6 +4,7 @@ import logger from '../utils/logger.js';
 
 /**
  * Creates Nodemailer SMTP Transporter
+ * Uses port 465 SSL for cloud host compatibility (Render, AWS, DigitalOcean)
  */
 const createTransporter = () => {
   if (config.email.host) {
@@ -15,16 +16,20 @@ const createTransporter = () => {
         user: config.email.user,
         pass: config.email.pass,
       },
+      tls: { rejectUnauthorized: false },
     });
   }
 
-  // Default to configured email service (e.g. Gmail)
+  // Cloud-optimized Gmail SSL Transporter (Port 465)
   return nodemailer.createTransport({
-    service: config.email.service,
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
       user: config.email.user,
       pass: config.email.pass,
     },
+    tls: { rejectUnauthorized: false },
   });
 };
 
