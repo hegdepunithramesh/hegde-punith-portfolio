@@ -1,9 +1,15 @@
 /**
  * Centralized API service configuration
- * Robust URL normalization supporting VITE_API_BASE_URL or VITE_API_URL
+ * Robust URL normalization with hardcoded live fallback for high availability
  */
 
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '/api';
+const LIVE_RENDER_BACKEND = 'https://hegde-punith-portfolio-backend.onrender.com/api';
+
+const rawBaseUrl =
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  LIVE_RENDER_BACKEND;
+
 let cleanBaseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
 
 if (!cleanBaseUrl.endsWith('/api') && cleanBaseUrl !== '/api') {
