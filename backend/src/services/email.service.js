@@ -3,8 +3,7 @@ import config from '../config/index.js';
 import logger from '../utils/logger.js';
 
 /**
- * Creates Nodemailer SMTP Transporter
- * Uses port 465 SSL for cloud host compatibility (Render, AWS, DigitalOcean)
+ * Creates Nodemailer Transporter
  */
 const createTransporter = () => {
   if (config.email.host) {
@@ -16,20 +15,16 @@ const createTransporter = () => {
         user: config.email.user,
         pass: config.email.pass,
       },
-      tls: { rejectUnauthorized: false },
     });
   }
 
-  // Cloud-optimized Gmail SSL Transporter (Port 465)
+  // Official Nodemailer Gmail Service Transporter
   return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    service: config.email.service || 'gmail',
     auth: {
       user: config.email.user,
       pass: config.email.pass,
     },
-    tls: { rejectUnauthorized: false },
   });
 };
 
