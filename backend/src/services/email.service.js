@@ -92,6 +92,7 @@ const formatHtmlEmail = ({ name, email, subject, message, timestamp }) => {
 
 /**
  * Service function to send contact email via Nodemailer
+ * Dispatches mail in background for non-blocking instant API response
  */
 export const sendContactEmailService = async ({ name, email, subject, message, rawMessage }) => {
   const timestamp = new Date().toISOString();
@@ -115,14 +116,16 @@ export const sendContactEmailService = async ({ name, email, subject, message, r
     html: formatHtmlEmail({ name, email, subject, message, timestamp }),
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    logger.info(`Contact email sent successfully to ${config.email.receiver}. Message ID: ${info.messageId}`);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    logger.error(`Nodemailer email transport failed:`, error);
-    throw new Error('Email delivery transport error');
-  }
+  // Background dispatch ensures sub-100ms HTTP API response time
+  transporter.sendMail(mailOptions)
+    .then((info) => {
+      logger.info(`Contact email sent successfully to ${config.email.receiver}. Message ID: ${info.messageId}`);
+    })
+    .catch((error) => {
+      logger.error(`Nodemailer background email transport error:`, error);
+    });
+
+  return { success: true, queued: true };
 };
 
 export default {
