@@ -4,11 +4,8 @@ import logger from '../utils/logger.js';
 
 /**
  * Creates Nodemailer Transporter
- * Strips whitespace from App Password and sets connection timeouts
  */
 const createTransporter = () => {
-  const cleanPass = (config.email.pass || '').replace(/\s+/g, '');
-
   if (config.email.host) {
     return nodemailer.createTransport({
       host: config.email.host,
@@ -16,25 +13,17 @@ const createTransporter = () => {
       secure: config.email.secure,
       auth: {
         user: config.email.user,
-        pass: cleanPass,
+        pass: config.email.pass,
       },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-      tls: { rejectUnauthorized: false },
     });
   }
 
-  // Gmail Service Transporter with connection timeouts
   return nodemailer.createTransport({
     service: config.email.service || 'gmail',
     auth: {
       user: config.email.user,
-      pass: cleanPass,
+      pass: config.email.pass,
     },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
   });
 };
 
@@ -106,11 +95,8 @@ const formatHtmlEmail = ({ name, email, subject, message, timestamp }) => {
 export const sendContactEmailService = async ({ name, email, subject, message, rawMessage }) => {
   const timestamp = new Date().toISOString();
 
-  // If no credentials configured in dev mode, simulate successful delivery
   if (!config.email.user || !config.email.pass) {
     logger.info(`[DEV MODE] SMTP credentials not set. Simulated contact email delivery for [${name} <${email}>]`);
-    logger.info(`Subject: ${subject}`);
-    logger.info(`Message: ${rawMessage}`);
     return { success: true, simulated: true };
   }
 
@@ -130,7 +116,7 @@ export const sendContactEmailService = async ({ name, email, subject, message, r
     logger.info(`Contact email sent successfully to ${config.email.receiver}. Message ID: ${info.messageId}`);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    logger.error(`Nodemailer email transport error:`, error);
+    logger.error(`Nodemailer email transport failed:`, error);
     throw error;
   }
 };
